@@ -70,4 +70,4 @@ Change `src/index.src.html` and push. The workflow builds `www/` itself. The bun
 
 ## Signing
 
-Every build is signed with the debug key in `signing/debug.keystore`, so a new APK installs over the old one and keeps your data. The key is public by design and only suitable for personal use. If you install an APK from before this key was added, uninstall it first (back up from Settings first).
+Android only installs an APK over an older one when both are signed with the same key. Add the repository secret `YUMMY_KEYSTORE_B64` (base64 of your keystore, alias `androiddebugkey`, password `android`) under Settings, Secrets and variables, Actions. Without it every build gets a new random key, and you have to uninstall the old app before installing the new one.

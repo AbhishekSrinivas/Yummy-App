@@ -39,7 +39,7 @@ jobs:
         run: npx cap add android
 
       - name: App icon and launcher assets
-        run: npx @capacitor/assets generate --android --iconBackgroundColor '#1E5B3A' --iconBackgroundColorDark '#1E5B3A'
+        run: npx @capacitor/assets generate --android --iconBackgroundColor '#0F6E6E' --iconBackgroundColorDark '#1E5B3A'
 
       - name: Keep the screen on while cooking
         run: |

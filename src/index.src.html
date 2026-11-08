@@ -2579,25 +2579,29 @@ const OTA_URL='https://github.com/AbhishekSrinivas/Yummy-App/releases/download/l
 function otaDB(){return new Promise((ok,no)=>{const q=indexedDB.open('yummy-ota',1);q.onupgradeneeded=()=>q.result.createObjectStore('f');q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)})}
 async function otaPut(v){const d=await otaDB();return new Promise((ok,no)=>{const t=d.transaction('f','readwrite');t.objectStore('f').put(v,'app');t.oncomplete=ok;t.onerror=()=>no(t.error)})}
 function otaPrompt(){if($('#otabar'))return;const b=document.createElement('div');b.id='otabar';b.style.cssText='position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:99999;background:#1E5B3A;color:#fff;padding:12px 14px;display:flex;align-items:center;gap:12px;border-radius:12px;font:600 15px Lexend,system-ui,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.35)';b.innerHTML='<span style="flex:1">Update ready</span><button id="otago" style="background:#fff;color:#1E5B3A;border:0;border-radius:8px;padding:9px 14px;font:inherit">Restart</button><button id="otax" aria-label="Later" style="background:none;border:0;color:#fff;font:inherit;padding:6px">Later</button>';document.body.appendChild(b);$('#otago').onclick=()=>{location.href='index.html'};$('#otax').onclick=()=>b.remove()}
+async function httpGet(u){
+  const url=u+(u.indexOf('?')<0?'?':'&')+'t='+Date.now();let e1='';
+  try{const C=window.Capacitor,H=C&&C.Plugins&&C.Plugins.CapacitorHttp;
+    if(H&&H.get){const r=await H.get({url,responseType:'text',connectTimeout:15000,readTimeout:60000,headers:{'Cache-Control':'no-cache'}});
+      if(r.status>=400)throw new Error('http '+r.status);return typeof r.data==='string'?r.data:JSON.stringify(r.data)}}catch(e){e1=String(e&&e.message||e);if(/^http/.test(e1))throw e}
+  try{const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error('http '+r.status);return await r.text()}
+  catch(e){throw new Error('net '+(e1||'')+' | '+String(e&&e.message||e))}
+}
 async function otaCheck(manual){
   const st=m=>{const e=$('#otast');if(e)e.textContent=m};
   try{
     st('Checking...');
-    const r=await fetch(OTA_URL+'version.json?t='+Date.now(),{cache:'no-store'});
-    if(!r.ok)throw new Error('http '+r.status);
-    const v=await r.json();
+    const v=JSON.parse(await httpGet(OTA_URL+'version.json'));
     let pend=0;try{pend=+localStorage.getItem('yummy-ota-pending')||0}catch(e){}
     if(v.build<=window.YUMMY_BUILD){st('You have the latest version.');return}
     if(v.build<=pend){st('Update ready. Restart to apply.');otaPrompt();return}
     st('Downloading update...');
-    const h=await fetch(OTA_URL+'app.html?t='+Date.now(),{cache:'no-store'});
-    if(!h.ok)throw new Error('http '+h.status);
-    const html=await h.text();
+    const html=await httpGet(OTA_URL+'app.html');
     if(html.length<100000||html.indexOf('YUMMY_BUILD='+v.build)<0)throw new Error('bad file');
     await otaPut({build:v.build,html});
     try{localStorage.setItem('yummy-ota-pending',String(v.build))}catch(e){}
     st('Update ready. Restart to apply.');otaPrompt();
-  }catch(e){const m=String(e&&e.message||e);st(!manual?'':/^http (404|401|403)/.test(m)?'No updates are published for this app yet.':/^http/.test(m)?'The update server had a problem. Try again later.':'Could not reach the update server. Check your internet connection.')}
+  }catch(e){const m=String(e&&e.message||e);st(!manual?'':/^http (404|401|403)/.test(m)?'No updates are published for this app yet.':/^http/.test(m)?'The update server had a problem. Try again later.':m==='bad file'?'The update file was incomplete. Try again.':'Could not reach the update server. ('+m.slice(0,90)+')')}
 }
 loadMeta();applyTheme();recipes=load();seedDefaults();
 migrateDiet();

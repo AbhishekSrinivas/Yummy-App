@@ -2390,9 +2390,10 @@ function openMore(){
   const th=meta.prefs.theme||'auto';
   sheet(`<div class="h1" style="font-size:36px">Settings</div>
      ${SEC('look','Look')}<div class="seg" style="margin-top:0">${[['auto','Auto','auto'],['light','Light','sun'],['dark','Dark','look']].map(([k,n,ic])=>`<button class="${th===k?'on':''}" data-th="${k}" style="display:inline-flex;align-items:center;justify-content:center;gap:7px">${ICO(SI[ic],16)}${n}</button>`).join('')}</div>
-    ${SEC('backup','Backup')}${backupDue()?`<div class="warn" style="background:var(--amberb);color:#8A5A00;margin:0 0 8px">${meta.lastBackup?'Your last backup was '+Math.round((Date.now()-meta.lastBackup)/864e5)+' days ago.':'You have not made a backup yet.'} Time to copy one.</div>`:''}<div class="row wrap"><button class="btn out sm" id="mcopy">${ICO(SI.copy,16)}<span>Copy backup</span></button><button class="btn out sm" id="mpaste">${ICO(SI.paste,16)}<span>Paste backup</span></button></div><p class="hint" style="margin-top:6px">${meta.lastBackup?'Last backup '+new Date(meta.lastBackup).toLocaleDateString()+'. ':''}Recipes, favorites, grocery and plan are saved on this device only. A backup moves them to another phone or the GitHub and APK versions.</p>
-    ${SEC('book','Recipes')}<button class="btn out sm" id="revall">${ICO(SI.review,16)}<span>Review all recipes</span></button><p class="hint" style="margin-top:6px">Go through every recipe A to Z. Edit the title, picture, categories or text, or skip.</p>
     ${window.YUMMY_BUILD?SEC('cloud','App updates')+'<button class="btn out sm" id="otabtn">'+ICO(SI.cloud,16)+'<span>Check for updates</span></button><p class="hint" id="otast" style="margin-top:6px">Version '+window.YUMMY_BUILD+'. Updates download in the background and apply when you restart.</p>':''}
+    ${SEC('book','Recipes')}<button class="btn out sm" id="revall">${ICO(SI.review,16)}<span>Review all recipes</span></button><p class="hint" style="margin-top:6px">Go through every recipe A to Z. Edit the title, picture, categories or text, or skip.</p>
+    
+    ${SEC('backup','Backup')}${backupDue()?`<div class="warn" style="background:var(--amberb);color:#8A5A00;margin:0 0 8px">${meta.lastBackup?'Your last backup was '+Math.round((Date.now()-meta.lastBackup)/864e5)+' days ago.':'You have not made a backup yet.'} Time to copy one.</div>`:''}<div class="row wrap"><button class="btn out sm" id="mcopy">${ICO(SI.copy,16)}<span>Copy backup</span></button><button class="btn out sm" id="mpaste">${ICO(SI.paste,16)}<span>Paste backup</span></button></div><p class="hint" style="margin-top:6px">${meta.lastBackup?'Last backup '+new Date(meta.lastBackup).toLocaleDateString()+'. ':''}Recipes, favorites, grocery and plan are saved on this device only. A backup moves them to another phone or the GitHub and APK versions.</p>
     ${SEC('help','Help')}<button class="btn out sm" id="helpbtn">${ICO(SI.help,16)}<span>Help and guides</span></button>
     ${SEC('trash','Danger zone')}<button class="btn out sm del" id="mclear">${ICO(SI.trash,16)}<span>Delete all recipes</span></button>
     <div style="margin-top:16px"><button class="btn out" id="mx">Close</button></div>`);
@@ -2417,7 +2418,7 @@ function openMore(){
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('#layer').innerHTML)closeSheet();else closeReader()}else if($('#rd')&&!$('#layer').innerHTML&&(e.key==='ArrowRight'||e.key==='ArrowLeft'))turn(e.key==='ArrowRight'?1:-1)});
 let trapOn=false;
 const NAPP=(()=>{try{const C=window.Capacitor;if(C&&C.registerPlugin&&(C.isNativePlatform?C.isNativePlatform():C.getPlatform&&C.getPlatform()!=='web'))return C.registerPlugin('App')}catch(e){}return null})();
-function armTrap(){if(NAPP||trapOn)return;try{history.pushState({yt:1},'');trapOn=true}catch(e){}}
+function armTrap(){if(trapOn)return;try{history.pushState({yt:1},'');trapOn=true}catch(e){}}
 (function(){
   let dr=null;
   document.addEventListener('pointerdown',e=>{
@@ -2449,11 +2450,13 @@ function backStep(){
   }catch(e){return true}
   return false}
 function askExit(){toast('Press back again to exit');exitOk=true;clearTimeout(exitT);exitT=setTimeout(()=>{exitOk=false},2500)}
-if(NAPP){NAPP.addListener('backButton',()=>{if(backStep())return;if(exitOk){exitOk=false;NAPP.exitApp();return}askExit()})}
-else window.addEventListener('popstate',()=>{
-  if(exitOk&&!$('#layer').innerHTML&&!$('#rd')&&!browse&&view!=='ask'){exitOk=false;trapOn=false;try{history.back()}catch(e){}return}
-  trapOn=false;armTrap();
-  if(backStep())return;
+const exitNow=()=>{try{if(NAPP){NAPP.exitApp();return}}catch(e){}try{navigator.app&&navigator.app.exitApp()}catch(e){}};
+const onBack=()=>{try{if(backStep())return;if(exitOk){exitOk=false;exitNow();return}askExit()}catch(e){askExit()}};
+if(NAPP){try{const pr=NAPP.addListener('backButton',onBack);if(pr&&pr.catch)pr.catch(()=>{})}catch(e){}}
+window.addEventListener('popstate',()=>{
+  trapOn=false;
+  if(backStep()){armTrap();return}
+  if(exitOk){exitOk=false;exitNow();return}
   askExit()
 });
 ['#navAsk','#navAdd','#navMore','#navProf'].forEach(q=>$(q).addEventListener('click',armTrap));

@@ -1060,7 +1060,7 @@ function art(r){
   else{s+=`${shadow}<ellipse cx="200" cy="225" rx="150" ry="42" fill="#fff"/><ellipse cx="200" cy="205" rx="100" ry="38" fill="${tint(c1,.25)}"/>`+bits(115,285,175,235,34)+steam(190)}
   return s+`</svg>`;
 }
-function thumb(r){if(r.photo)return`<img src="${r.photo}" alt="">`;const t=typeof stockFor==='function'?stockFor(r):null;return t?`<img src="${t.s}" alt="" decoding="async">`:art(r)}
+function thumb(r,big){if(r.photo)return`<img src="${r.photo}" alt="">`;const t=typeof stockFor==='function'?stockFor(r):null;return t?`<img src="${big?t.s:(t.m||t.s)}" alt="" decoding="async">`:art(r)}
 
 /* ---------- storage ---------- */
 let store=null;try{localStorage.setItem('__t','1');localStorage.removeItem('__t');store=localStorage}catch(e){}
@@ -1164,13 +1164,13 @@ function catImg(k){
   if(k==='__fav'&&document.documentElement.classList.contains('ed'))return`<div class="favtile"><svg viewBox="0 0 24 24" width="44" height="44" fill="currentColor" aria-hidden="true"><path d="M12 2l3 7 7 .6-5.3 4.7 1.7 7.2L12 17.8 5.6 21.5l1.7-7.2L2 9.6 9 9z"/></svg></div>`;
   if(k==='__fav')return`<svg viewBox="0 0 300 246" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="favg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d6f58a"/><stop offset="1" stop-color="#5aa532"/></linearGradient></defs><rect width="300" height="246" fill="url(#favg)"/><circle cx="150" cy="112" r="90" fill="#fff" opacity=".22"/><path d="M150 40 L170 90 L224 94 L183 129 L196 182 L150 154 L104 182 L117 129 L76 94 L130 90Z" fill="#0E0F11"/><path d="M150 54 L166 94 L208 98 L176 125 L186 166 L150 144 L114 166 L124 125 L92 98 L134 94Z" fill="#C8F169"/></svg>`;
   const t=k==='__all'?(LIBBY.get('c2_29')||catDefault()):(catTile(String(k).startsWith('__')?'':k)||catDefault());
-  return t?`<img src="${t.s}" alt="" loading="lazy">`:'';
+  return t?`<img src="${t.m||t.s}" alt="" loading="lazy">`:'';
 }
 function openStockPick(id){
   const r=recipes.find(x=>x.id===id);if(!r)return;
   const x=libCtx(r);
   const rank=LIB.map(t=>({t,s:t.c?libScore(x,t)*.8:libScore(x,t)})).sort((a,b)=>b.s-a.s);
-  const cur=stockFor(r),cell=t=>`<button class="spk ${cur&&cur.id===t.id?'on':''}" data-sp="${t.id}" aria-label="${esc(t.n)}"><img src="${t.s}" alt="" loading="lazy"><span>${esc(t.n)}</span></button>`;
+  const cur=stockFor(r),cell=t=>`<button class="spk ${cur&&cur.id===t.id?'on':''}" data-sp="${t.id}" aria-label="${esc(t.n)}"><img src="${t.m||t.s}" alt="" loading="lazy"><span>${esc(t.n)}</span></button>`;
   sheet(`<div class="h1" style="font-size:32px">Pick a photo</div><p class="hint" style="margin-top:6px">These are stock photos. Picking one replaces your own photo for this recipe.</p>
     <input class="search" id="spq" placeholder="Search photos, like dosa or soup">
     <div id="spbest"><div class="sec">Closest matches</div><div class="spg">${rank.slice(0,6).map(e=>cell(e.t)).join('')}</div></div>
@@ -1516,11 +1516,11 @@ function pageHTML(pi){
   const f=rf(),base=baseServ(r);let h='';
   if(pg.k==='front'){
     const cm=['Serves '+(r.servings||baseServ(r)),totalMin(r)&&totalMin(r)+' min'].filter(Boolean).join('  \u00b7  ');
-    h=`<div class="cvr"><div class="cvph">${thumb(r)}</div><div class="cvbot">${(r.cats&&r.cats[0])?`<div class="cvk">${esc(r.cats[0])}</div>`:''}<div class="cvt">${esc(r.title)}</div>${r.creator?`<div class="cvdw"><div class="cvbl">by</div><div class="cvdv"><span></span><em>${esc(r.creator)}</em><span></span></div></div>`:''}${cm?`<div class="cvm">${esc(cm)}</div>`:''}</div></div>`;
+    h=`<div class="cvr"><div class="cvph">${thumb(r,1)}</div><div class="cvbot">${(r.cats&&r.cats[0])?`<div class="cvk">${esc(r.cats[0])}</div>`:''}<div class="cvt">${esc(r.title)}</div>${r.creator?`<div class="cvdw"><div class="cvbl">by</div><div class="cvdv"><span></span><em>${esc(r.creator)}</em><span></span></div></div>`:''}${cm?`<div class="cvm">${esc(cm)}</div>`:''}</div></div>`;
   }else if(pg.k==='cover'){
     const cm=[speedOf(r)&&SPEEDS.find(x=>x[0]===speedOf(r))[1],r.servings&&'Serves '+r.servings,totalMin(r)&&totalMin(r)+' min'].filter(Boolean);
     const sum=r.summary||('A '+(speedOf(r)||'home')+' recipe with '+r.ingredients.length+' ingredients and '+r.steps.length+' steps.');
-    h=`<div class="pbody" style="display:flex;flex-direction:column"><div class="cimg" ${meatNames(r).length?'style="height:30%;min-height:110px"':''}>${thumb(r)}</div><div class="ph1" style="margin-top:14px">${esc(r.title)}</div>${r.titleOrig?`<div class="pmeta" style="margin:0 0 6px">${esc(r.titleOrig)}</div>`:''}${r.creator?`<div class="cby">By ${esc(r.creator)}</div>`:''}${(()=>{const B=RD.base||r;let o='';if(B.styles&&B.styles.length){o+=`<div class="stylebox"><span>Style</span><select id="stysel" aria-label="Recipe style">${styleNames(B).map((x,n)=>`<option value="${n}"${(RD.style||0)===n?' selected':''}>${esc(x)}</option>`).join('')}</select>${clashIdx(B).length?'<button class="btn sm" data-act="fixnames" style="flex:none;width:auto;height:34px;padding:0 10px;font-size:12px;background:#C0392B;color:#fff">Fix names</button>':'<button class="btn out sm" data-act="fixnames" style="flex:none;width:auto;height:34px;padding:0 10px;font-size:12px">Rename</button>'}</div>`}return o})()}<div class="csum">${esc(sum)}</div>${lastCooked(r.id)?`<div class="lastc">You last made this ${ago(lastCooked(r.id))}</div>`:''}<div class="chips" style="padding:12px 0 0">${cm.map(c=>`<span class="chip l">${esc(c)}</span>`).join('')}${r.cats.slice(0,3).map(c=>`<span class="chip">${esc(c)}</span>`).join('')}</div>${meatNames(r).length?`<div class="meatflag"><b>Contains meat or fish</b><span>${esc(meatNames(r).join(', '))}</span><button class="btn sm" data-act="vegswap">Make it vegetarian</button></div>`:''}<div class="crow"><button class="btn out sm shbtn" data-act="share" aria-label="Share recipe">${ICO('<path d="M12 16V4M7 9l5-5 5 5M5 14v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5"/>',20)}</button></div>${recipes.filter(x=>x.id!==(RD.base||r).id&&sameDish(x,RD.base||r)).map(x=>`<div class="dupnote"><span>Also saved: <b>${esc(x.title)}</b></span><button class="btn sm" data-act="mergedup" data-id="${x.id}">Add as style</button></div>`).join('')}</div>`;
+    h=`<div class="pbody" style="display:flex;flex-direction:column"><div class="cimg" ${meatNames(r).length?'style="height:30%;min-height:110px"':''}>${thumb(r,1)}</div><div class="ph1" style="margin-top:14px">${esc(r.title)}</div>${r.titleOrig?`<div class="pmeta" style="margin:0 0 6px">${esc(r.titleOrig)}</div>`:''}${r.creator?`<div class="cby">By ${esc(r.creator)}</div>`:''}${(()=>{const B=RD.base||r;let o='';if(B.styles&&B.styles.length){o+=`<div class="stylebox"><span>Style</span><select id="stysel" aria-label="Recipe style">${styleNames(B).map((x,n)=>`<option value="${n}"${(RD.style||0)===n?' selected':''}>${esc(x)}</option>`).join('')}</select>${clashIdx(B).length?'<button class="btn sm" data-act="fixnames" style="flex:none;width:auto;height:34px;padding:0 10px;font-size:12px;background:#C0392B;color:#fff">Fix names</button>':'<button class="btn out sm" data-act="fixnames" style="flex:none;width:auto;height:34px;padding:0 10px;font-size:12px">Rename</button>'}</div>`}return o})()}<div class="csum">${esc(sum)}</div>${lastCooked(r.id)?`<div class="lastc">You last made this ${ago(lastCooked(r.id))}</div>`:''}<div class="chips" style="padding:12px 0 0">${cm.map(c=>`<span class="chip l">${esc(c)}</span>`).join('')}${r.cats.slice(0,3).map(c=>`<span class="chip">${esc(c)}</span>`).join('')}</div>${meatNames(r).length?`<div class="meatflag"><b>Contains meat or fish</b><span>${esc(meatNames(r).join(', '))}</span><button class="btn sm" data-act="vegswap">Make it vegetarian</button></div>`:''}<div class="crow"><button class="btn out sm shbtn" data-act="share" aria-label="Share recipe">${ICO('<path d="M12 16V4M7 9l5-5 5 5M5 14v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5"/>',20)}</button></div>${recipes.filter(x=>x.id!==(RD.base||r).id&&sameDish(x,RD.base||r)).map(x=>`<div class="dupnote"><span>Also saved: <b>${esc(x.title)}</b></span><button class="btn sm" data-act="mergedup" data-id="${x.id}">Add as style</button></div>`).join('')}</div>`;
   }else if(pg.k==='full'){
     h=`<div class="pbody"><div class="khead"><div class="kick2">Full recipe</div><button class="scs" data-act="startcook">${I.play}Start cooking</button></div><div class="ph1">${esc(r.title)}</div><div class="pmeta">Read it all at once, or cook step by step</div>${r.steps.map((s,n)=>`<div class="fstep"><b>${n+1}</b><div>${esc(scaleText(s.t,rf(),r))}${s.tips.map(t=>`<div class="ptip"><b>Tip</b><span>${esc(t)}</span></div>`).join('')}</div></div>`).join('')}${r.tips.length?`<div class="kick2" style="margin:16px 0 6px">Good to know</div>${r.tips.map(t=>`<div class="tcard"><i>${I.bulb}</i><span>${esc(t)}</span></div>`).join('')}`:''}${meta.notes[r.id]?`<div class="mynote"><b>My notes</b>${esc(meta.notes[r.id])}<br><button data-act="mnote">Edit</button></div>`:'<button class="lcook" data-act="mnote" style="background:#E4E9ED">+ Add my notes</button>'}<button class="btn" data-act="startcook" style="margin:14px 0 6px">${I.play}Start cooking</button></div>`;
   }else if(pg.k==='ing'){
@@ -1907,7 +1907,7 @@ ${wz?'':BTNS}`);
   const drawPh=()=>{
     const q=curP(),auto=stockFor(q),sx=LIB.filter(t=>!t.c).map(t=>({t,s:libScore(libCtx(q),t)})).sort((a,b)=>b.s-a.s).slice(0,8).map(x=>x.t);
     const cur=ph.mode==='photo'?`<img src="${ph.url}" alt="">`:ph.mode==='stock'?`<img src="${LIBBY.get(ph.stock).s}" alt="">`:ph.mode==='keep'?thumb(r):(auto?`<img src="${auto.s}" alt="">`:'');
-    const cells=(r&&(r.photo||r.stock)?`<button class="spk ${ph.mode==='keep'?'on':''}" data-fp="keep"><span class="kimg">${thumb(r)}</span><span>Current</span></button>`:'')+(ph.url?`<button class="spk ${ph.mode==='photo'?'on':''}" data-fp="photo"><img src="${ph.url}" alt=""><span>Your photo</span></button>`:'')+sx.map(t=>`<button class="spk ${ph.mode==='stock'&&ph.stock===t.id?'on':''}" data-fp="s:${t.id}"><img src="${t.s}" alt="" decoding="async"><span>${esc(t.n)}</span></button>`).join('');
+    const cells=(r&&(r.photo||r.stock)?`<button class="spk ${ph.mode==='keep'?'on':''}" data-fp="keep"><span class="kimg">${thumb(r)}</span><span>Current</span></button>`:'')+(ph.url?`<button class="spk ${ph.mode==='photo'?'on':''}" data-fp="photo"><img src="${ph.url}" alt=""><span>Your photo</span></button>`:'')+sx.map(t=>`<button class="spk ${ph.mode==='stock'&&ph.stock===t.id?'on':''}" data-fp="s:${t.id}"><img src="${t.m||t.s}" alt="" decoding="async"><span>${esc(t.n)}</span></button>`).join('');
     $('#phbox').innerHTML=`<div class="row" style="gap:10px;align-items:center"><div class="sth" style="width:72px;height:72px;border-radius:16px;overflow:hidden;flex:none">${cur||'<div style="width:100%;height:100%;background:#2a2d31"></div>'}</div><div class="row wrap" style="gap:8px"><label class="btn out sm" for="fph">Use my photo</label>${ph.mode!=='auto'&&!r?'<button class="btn out sm" id="fauto">Auto match</button>':''}</div></div><div class="sub" style="margin-top:8px">${ph.mode==='auto'&&!r?'Matched to the title. Tap another to change.':'Stock photos that fit'}</div><div class="pstrip">${cells}</div>`;
     $$('[data-fp]').forEach(b=>b.onclick=()=>{const v=b.dataset.fp;if(v==='keep'||v==='photo')ph.mode=v;else{ph.mode='stock';ph.stock=v.slice(2)}$$('[data-fp]').forEach(x=>x.classList.toggle('on',x===b));const th=$('#phbox .sth');if(th)th.innerHTML=ph.mode==='photo'?`<img src="${ph.url}" alt="">`:ph.mode==='keep'?thumb(r):`<img src="${LIBBY.get(ph.stock).s}" alt="">`});
     if($('#fauto'))$('#fauto').onclick=()=>{ph.mode='auto';drawPh()};
@@ -2029,7 +2029,7 @@ async function importFiles(fileList){
     if((x.state!=='new'&&x.state!=='upd')||x.skip||(x.state==='upd'&&!x.apply))return'';
     const st=stockOfX(x,i),zu=x.p.photoSrc?(x.zu||(x.zu=URL.createObjectURL(x.p.photoSrc))):null,m=modeOf(x);
     const keepc=x.state==='upd'?`<button class="spk ${m==='keep'?'on':''}" data-pk="${i}:keep"><span class="kimg">${thumb(x.ex)}</span><span>Keep current</span></button>`:'';
-    const cells=keepc+(zu?`<button class="spk ${m==='zip'?'on':''}" data-pk="${i}:zip"><img src="${zu}" alt=""><span>Your zip photo</span></button>`:'')+(st?`<button class="spk ${m==='stock'?'on':''}" data-pk="${i}:stock"><img src="${st.s}" alt=""><span>Stock: ${esc(st.n)}</span></button>`:'');
+    const cells=keepc+(zu?`<button class="spk ${m==='zip'?'on':''}" data-pk="${i}:zip"><img src="${zu}" alt=""><span>Your zip photo</span></button>`:'')+(st?`<button class="spk ${m==='stock'?'on':''}" data-pk="${i}:stock"><img src="${st.m||st.s}" alt=""><span>Stock: ${esc(st.n)}</span></button>`:'');
     return cells?`<div class="sub" style="margin-top:8px">Photo for this recipe</div><div class="pkrow">${cells}</div>`:'';
   };
   const paintPick=i=>{const m=modeOf(found[i]);$$('[data-pk^="'+i+':"]').forEach(b=>b.classList.toggle('on',b.dataset.pk===i+':'+m))};
@@ -2387,10 +2387,11 @@ function openMore(){
      <div class="sec">Look</div><div class="seg" style="margin-top:0">${[['auto','Auto'],['light','Light'],['dark','Dark']].map(([k,n])=>`<button class="${th===k?'on':''}" data-th="${k}">${n}</button>`).join('')}</div>
     <div class="sec">Sync</div><p class="hint" id="syst" style="margin-top:2px"></p><div style="margin-top:8px"><button class="btn out sm" id="synow">Sync now</button></div><div class="sec">Backup</div>${backupDue()?`<div class="warn" style="background:var(--amberb);color:#8A5A00;margin:0 0 8px">${meta.lastBackup?'Your last backup was '+Math.round((Date.now()-meta.lastBackup)/864e5)+' days ago.':'You have not made a backup yet.'} Time to copy one.</div>`:''}<div class="row wrap"><button class="btn out sm" id="mcopy">Copy backup</button><button class="btn out sm" id="mpaste">Paste backup</button></div><p class="hint" style="margin-top:6px">${meta.lastBackup?'Last backup '+new Date(meta.lastBackup).toLocaleDateString()+'. ':''}Recipes, favorites, grocery and plan are saved on this device only. A backup moves them to another phone or the GitHub and APK versions.</p>
     <div class="sec">Recipes</div><button class="btn out sm" id="revall">Review all recipes</button><p class="hint" style="margin-top:6px">Go through every recipe A to Z. Edit the title, picture, categories or text, or skip.</p>
+    ${window.YUMMY_BUILD?'<div class="sec">App updates</div><button class="btn out sm" id="otabtn">Check for updates</button><p class="hint" id="otast" style="margin-top:6px">Version '+window.YUMMY_BUILD+'. Updates download in the background and apply when you restart.</p>':''}
     <div class="sec">Help</div><button class="btn out sm" id="helpbtn">Help and guides</button>
     <div class="sec">Danger zone</div><button class="btn out sm del" id="mclear">Delete all recipes</button>
     <div style="margin-top:16px"><button class="btn out" id="mx">Close</button></div>`);
-  $('#helpbtn').onclick=openHelp;$('#revall').onclick=()=>reviewAll(0);
+  if($('#otabtn'))$('#otabtn').onclick=()=>otaCheck(true);$('#helpbtn').onclick=openHelp;$('#revall').onclick=()=>reviewAll(0);
   $('#mx').onclick=closeSheet;syStatus();$('#synow').onclick=()=>{if(SY.on)syRun();else toast('Sync is off here')};
   $$('[data-th]').forEach(b=>b.onclick=()=>{meta.prefs.theme=b.dataset.th;saveMeta();applyTheme();openMore()});$$('[data-sty]').forEach(b=>b.onclick=()=>{meta.prefs.style=b.dataset.sty;saveMeta();applyTheme();render();openMore()});
   $('#mcopy').onclick=()=>{doBackupCopy();openMore()};
@@ -2560,11 +2561,37 @@ function welcome(force){
   };
   show(1);return true;
 }
+
+/* ---------- app updates (APK build only: window.YUMMY_BUILD is set by the build script) ---------- */
+const OTA_URL='https://github.com/AbhishekSrinivas/Yummy-App/releases/download/latest/';
+function otaDB(){return new Promise((ok,no)=>{const q=indexedDB.open('yummy-ota',1);q.onupgradeneeded=()=>q.result.createObjectStore('f');q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)})}
+async function otaPut(v){const d=await otaDB();return new Promise((ok,no)=>{const t=d.transaction('f','readwrite');t.objectStore('f').put(v,'app');t.oncomplete=ok;t.onerror=()=>no(t.error)})}
+function otaPrompt(){if($('#otabar'))return;const b=document.createElement('div');b.id='otabar';b.style.cssText='position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:99999;background:#1E5B3A;color:#fff;padding:12px 14px;display:flex;align-items:center;gap:12px;border-radius:12px;font:600 15px Lexend,system-ui,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.35)';b.innerHTML='<span style="flex:1">Update ready</span><button id="otago" style="background:#fff;color:#1E5B3A;border:0;border-radius:8px;padding:9px 14px;font:inherit">Restart</button><button id="otax" aria-label="Later" style="background:none;border:0;color:#fff;font:inherit;padding:6px">Later</button>';document.body.appendChild(b);$('#otago').onclick=()=>{location.href='index.html'};$('#otax').onclick=()=>b.remove()}
+async function otaCheck(manual){
+  const st=m=>{const e=$('#otast');if(e)e.textContent=m};
+  try{
+    st('Checking...');
+    const r=await fetch(OTA_URL+'version.json?t='+Date.now(),{cache:'no-store'});
+    if(!r.ok)throw new Error('http '+r.status);
+    const v=await r.json();
+    let pend=0;try{pend=+localStorage.getItem('yummy-ota-pending')||0}catch(e){}
+    if(v.build<=window.YUMMY_BUILD){st('You have the latest version.');return}
+    if(v.build<=pend){st('Update ready. Restart to apply.');otaPrompt();return}
+    st('Downloading update...');
+    const h=await fetch(OTA_URL+'app.html?t='+Date.now(),{cache:'no-store'});
+    if(!h.ok)throw new Error('http '+h.status);
+    const html=await h.text();
+    if(html.length<100000||html.indexOf('YUMMY_BUILD='+v.build)<0)throw new Error('bad file');
+    await otaPut({build:v.build,html});
+    try{localStorage.setItem('yummy-ota-pending',String(v.build))}catch(e){}
+    st('Update ready. Restart to apply.');otaPrompt();
+  }catch(e){st(manual?'Could not check for updates. Check your internet connection.':'')}
+}
 loadMeta();applyTheme();recipes=load();seedDefaults();
 migrateDiet();
 (()=>{let ch=false;const ks=Object.keys(DISH);for(const p of meta.profiles){if(!p.photo&&!dishKey(p.av)){p.av='svg:'+ks[Math.abs(hash(String(p.id)))%ks.length];ch=true}}if(ch)saveMeta()})();
 if(!meta.prefs.tv2){meta.prefs.tv2=1;if(meta.prefs.tours)delete meta.prefs.tours.home;saveMeta()}
-go(render);setTimeout(()=>{if(!welcome())tour('home')},1500);if(meta.wxOn)getWeather(false).then(w=>{if(w&&!$('#rd'))drawHero()});
+go(render);if(window.YUMMY_BUILD){try{localStorage.setItem('yummy-ota-ok',String(window.YUMMY_BUILD))}catch(e){}setTimeout(()=>otaCheck(false),5000)}setTimeout(()=>{if(!welcome())tour('home')},1500);if(meta.wxOn)getWeather(false).then(w=>{if(w&&!$('#rd'))drawHero()});
 </script>
 </body>
 </html>

@@ -28,6 +28,8 @@ jobs:
           java-version: 17
 
       - name: Build the web app
+        env:
+          BUILD_ID: ${{ github.run_number }}
         run: python3 src/build.py
 
       - name: Install Capacitor
@@ -65,6 +67,6 @@ jobs:
         run: |
           cp android/app/build/outputs/apk/debug/app-debug.apk Yummy.apk
           gh release delete latest --cleanup-tag --yes || true
-          gh release create latest Yummy.apk \
+          gh release create latest Yummy.apk www/app.html www/version.json \
             --title "Yummy (latest build)" \
-            --notes "Debug APK built from commit ${GITHUB_SHA::7}. Download Yummy.apk, open it on an Android device and allow installs from this source."
+            --notes "Debug APK built from commit ${GITHUB_SHA::7}. Download Yummy.apk, open it on an Android device and allow installs from this source. app.html and version.json are what installed apps download when they check for updates."

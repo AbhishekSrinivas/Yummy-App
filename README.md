@@ -20,20 +20,28 @@ Download the latest APK from the [releases page](https://github.com/AbhishekSrin
 - Read aloud with highlighting, speed options and a choice of ingredients only or the whole recipe
 - Favorites, search across recipes, ingredients and tips, and A-Z or custom ordering
 - Editorial and lime glass themes, light, dark and true black modes
-- Fonts are bundled, so everything works offline
+- Full-resolution photos and bundled fonts, so everything works offline
+- Installed app checks for updates and downloads new app files by itself (see below)
 
 ## Install
 
 On Android, open the latest release, download `Yummy.apk`, and allow installs from your browser or file manager when asked. The APK is rebuilt on every push to `main`. It is debug-signed, so installing a new one over the old one keeps your data.
 
-You can also serve the `www` folder from any static host and add it to the home screen.
+You can also build `www` and serve it from any static host.
+
+## Updates without a new APK
+
+The installed app looks at the latest release for `version.json` when it opens (after a few seconds) and from Settings, App updates. If the build number is newer, it downloads `app.html`, keeps it on the device and shows an Update ready bar. Restart applies it. Recipes, photos and notes are not touched. If an update fails to start, the app removes it and falls back to the version inside the APK.
+
+- Needs internet and a repository that can be read without signing in (public). On a private repo the check quietly finds nothing and the APK is the only way to update.
+- Updates change the app code and bundled recipes. New or changed photo files are only in the APK, so those need a new APK install.
 
 ## Build
 
 Needs Python 3 and Node 18+.
 
 ```bash
-python3 src/build.py          # writes www/index.html
+python3 src/build.py          # writes www/
 npm install
 npx cap add android           # first time only
 npx @capacitor/assets generate --android --iconBackgroundColor '#1E5B3A'
@@ -47,9 +55,9 @@ The APK ends up in `android/app/build/outputs/apk/debug/`. Pushing to `main` or 
 
 ```
 src/index.src.html   app source, a single readable file
+src/images/          full-size photos (1920 px), images/m has smaller copies for lists
 src/fonts/           bundled Lexend, Playfair Display and Barlow Condensed
-src/build.py         inlines the fonts and writes www/index.html
-www/index.html       built app that the Android wrapper loads
+src/build.py         writes www/ (launcher, app.html, img, version.json)
 assets/              app icon
 docs/screenshots/    images used in this README
 .github/workflows/   APK build and release
@@ -58,4 +66,4 @@ capacitor.config.json  Android wrapper settings
 
 ## Editing
 
-Change `src/index.src.html`, run `python3 src/build.py`, and commit both. The bundled recipes are the `DEFAULTS` list in the source. Existing installs pick up changed bundled recipes without losing photos or notes.
+Change `src/index.src.html` and push. The workflow builds `www/` itself. The bundled recipes are the `DEFAULTS` list in the source. Existing installs pick up changed bundled recipes without losing photos or notes.

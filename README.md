@@ -67,3 +67,7 @@ capacitor.config.json  Android wrapper settings
 ## Editing
 
 Change `src/index.src.html` and push. The workflow builds `www/` itself. The bundled recipes are the `DEFAULTS` list in the source. Existing installs pick up changed bundled recipes without losing photos or notes.
+
+## Signing
+
+Every build is signed with the debug key in `signing/debug.keystore`, so a new APK installs over the old one and keeps your data. The key is public by design and only suitable for personal use. If you install an APK from before this key was added, uninstall it first (back up from Settings first).

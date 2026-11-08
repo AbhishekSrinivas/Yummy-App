@@ -433,6 +433,40 @@ body{touch-action:manipulation}
 .reader.rout{animation:rdout .35s ease-in both}
 .sheet{animation-duration:.5s}
 @media (prefers-reduced-motion:reduce){#main.enter *,.reader,.reader.rout{animation:none!important}}
+/* motion matched to Gymmy: cascade entry, short sheet rise, quick press feedback */
+@keyframes mF{from{opacity:0}}
+@keyframes mCas{0%{opacity:0;transform:scale(.86) translateY(10px)}100%{opacity:1;transform:none}}
+@keyframes mSheetUp{from{transform:translateY(48px);opacity:.3}}
+.sheetbg{animation:mF .2s}
+.sheet{animation:mSheetUp .3s ease-out}
+.sheet>*:nth-child(-n+10){animation:mCas .38s cubic-bezier(.34,1.56,.64,1) both}
+.sheet>*:nth-child(1){animation-delay:0.00s}
+.sheet>*:nth-child(2){animation-delay:0.04s}
+.sheet>*:nth-child(3){animation-delay:0.08s}
+.sheet>*:nth-child(4){animation-delay:0.12s}
+.sheet>*:nth-child(5){animation-delay:0.16s}
+.sheet>*:nth-child(6){animation-delay:0.20s}
+.sheet>*:nth-child(7){animation-delay:0.24s}
+.sheet>*:nth-child(8){animation-delay:0.28s}
+.sheet>*:nth-child(9){animation-delay:0.32s}
+.sheet>*:nth-child(10){animation-delay:0.36s}
+#main.enter .rc,#main.enter .ctile,#main.enter .sug,#main.enter .qb,#main.enter .sec,#main.enter .stick{animation:mCas .38s cubic-bezier(.34,1.56,.64,1) both}
+#main.enter .rc:nth-child(n+11),#main.enter .ctile:nth-child(n+11),#main.enter .sug:nth-child(n+11),#main.enter .qb:nth-child(n+11){animation-delay:.4s}
+#main.enter .rc:nth-child(1),#main.enter .ctile:nth-child(1),#main.enter .sug:nth-child(1),#main.enter .qb:nth-child(1){animation-delay:0.00s}
+#main.enter .rc:nth-child(2),#main.enter .ctile:nth-child(2),#main.enter .sug:nth-child(2),#main.enter .qb:nth-child(2){animation-delay:0.04s}
+#main.enter .rc:nth-child(3),#main.enter .ctile:nth-child(3),#main.enter .sug:nth-child(3),#main.enter .qb:nth-child(3){animation-delay:0.08s}
+#main.enter .rc:nth-child(4),#main.enter .ctile:nth-child(4),#main.enter .sug:nth-child(4),#main.enter .qb:nth-child(4){animation-delay:0.12s}
+#main.enter .rc:nth-child(5),#main.enter .ctile:nth-child(5),#main.enter .sug:nth-child(5),#main.enter .qb:nth-child(5){animation-delay:0.16s}
+#main.enter .rc:nth-child(6),#main.enter .ctile:nth-child(6),#main.enter .sug:nth-child(6),#main.enter .qb:nth-child(6){animation-delay:0.20s}
+#main.enter .rc:nth-child(7),#main.enter .ctile:nth-child(7),#main.enter .sug:nth-child(7),#main.enter .qb:nth-child(7){animation-delay:0.24s}
+#main.enter .rc:nth-child(8),#main.enter .ctile:nth-child(8),#main.enter .sug:nth-child(8),#main.enter .qb:nth-child(8){animation-delay:0.28s}
+#main.enter .rc:nth-child(9),#main.enter .ctile:nth-child(9),#main.enter .sug:nth-child(9),#main.enter .qb:nth-child(9){animation-delay:0.32s}
+#main.enter .rc:nth-child(10),#main.enter .ctile:nth-child(10),#main.enter .sug:nth-child(10),#main.enter .qb:nth-child(10){animation-delay:0.36s}
+.reader{animation:mSheetUp .3s ease-out both}
+.reader.rout{animation:rdout .2s ease-in both}
+.rc,.ctile,.tchip,.btn,.ibtn,.qb,.sug,.pick,.fab,.nav button{transition:transform .14s cubic-bezier(.22,.8,.2,1),background .2s}
+.rc:active,.ctile:active,.tchip:active,.btn:active,.ibtn:active,.qb:active,.sug:active,.pick:active,.fab:active,.nav button:active{transform:scale(.96)}
+@media (prefers-reduced-motion:reduce){.sheet,.sheet>*,.sheetbg{animation:none!important}}
 .tin{width:100%;height:42px;border-radius:12px;border:1px solid var(--gb2);background:var(--glass);padding:0 12px;font:700 15px 'Lexend',sans-serif;color:var(--tx);outline:none}.tin:focus{border-color:var(--lime);box-shadow:0 0 0 3px color-mix(in srgb,var(--ac) 35%,transparent)}.tin:disabled{opacity:.6}
 
 .rtabs{gap:4px!important}.rtab{flex:1 0 auto!important;justify-content:center;padding:0 7px!important;font-size:12.5px!important}

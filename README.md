@@ -70,4 +70,4 @@ Change `src/index.src.html` and push. The workflow builds `www/` itself. The bun
 
 ## Signing
 
-Android only installs an APK over an older one when both are signed with the same key. Add the repository secret `YUMMY_KEYSTORE_B64` (base64 of your keystore, alias `androiddebugkey`, password `android`) under Settings, Secrets and variables, Actions. Without it every build gets a new random key, and you have to uninstall the old app before installing the new one.
+Android only installs an APK over an older one when both are signed with the same key. The first build creates a debug key and the workflow keeps it in the Actions cache, so every later build reuses it and installs over the last one with your data kept. If GitHub clears the cache after a long idle period, the next build gets a new key and you have to uninstall the old app first, so back up from Settings before that.

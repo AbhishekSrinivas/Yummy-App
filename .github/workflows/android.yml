@@ -49,16 +49,20 @@ jobs:
       - name: Sync web files into the app
         run: npx cap sync android
 
-      - name: Use the saved signing key so every build installs over the last one
-        env:
-          KEYSTORE_B64: ${{ secrets.YUMMY_KEYSTORE_B64 }}
+      - name: Restore the signing key saved by earlier builds
+        id: keystore
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: yummy-debug-keystore-v1
+
+      - name: Create the signing key on the first build
+        if: steps.keystore.outputs.cache-hit != 'true'
         run: |
-          if [ -n "$KEYSTORE_B64" ]; then
-            mkdir -p ~/.android
-            echo "$KEYSTORE_B64" | base64 -d > ~/.android/debug.keystore
-          else
-            echo "No YUMMY_KEYSTORE_B64 secret set, using a new random debug key"
-          fi
+          mkdir -p ~/.android
+          keytool -genkeypair -keystore ~/.android/debug.keystore -storepass android -keypass android \
+            -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 36500 \
+            -dname "CN=Android Debug,O=Android,C=US"
 
       - name: Build debug APK
         working-directory: android

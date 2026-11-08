@@ -2417,7 +2417,7 @@ function openMore(){
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('#layer').innerHTML)closeSheet();else closeReader()}else if($('#rd')&&!$('#layer').innerHTML&&(e.key==='ArrowRight'||e.key==='ArrowLeft'))turn(e.key==='ArrowRight'?1:-1)});
 let trapOn=false;
-const NAPP=(window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.App&&window.Capacitor.Plugins.App.addListener)?window.Capacitor.Plugins.App:null;
+const NAPP=(()=>{try{const C=window.Capacitor;if(C&&C.registerPlugin&&(C.isNativePlatform?C.isNativePlatform():C.getPlatform&&C.getPlatform()!=='web'))return C.registerPlugin('App')}catch(e){}return null})();
 function armTrap(){if(NAPP||trapOn)return;try{history.pushState({yt:1},'');trapOn=true}catch(e){}}
 (function(){
   let dr=null;
@@ -2446,7 +2446,7 @@ function backStep(){
     if($('#layer').innerHTML){closeSheet();return true}
     if($('#rd')){closeReader();return true}
     if(view==='ask'){setView('home');return true}
-    if(browse||$('#q').value){browse=null;$('#q').value='';go(render);window.scrollTo(0,0);return true}
+    if(browse||$('#q').value||activeCat||favOnly||fopen){browse=null;activeCat='';favOnly=false;fopen=false;$('#q').value='';go(render);window.scrollTo(0,0);return true}
   }catch(e){return true}
   return false}
 function askExit(){toast('Press back again to exit');exitOk=true;clearTimeout(exitT);exitT=setTimeout(()=>{exitOk=false},2500)}

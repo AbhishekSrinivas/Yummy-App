@@ -1,0 +1,8 @@
+{
+  "appId": "com.abhishek.yummy",
+  "appName": "Yummy",
+  "webDir": "www",
+  "backgroundColor": "#F6F3EC",
+  "server": { "androidScheme": "https" },
+  "android": { "allowMixedContent": false }
+}

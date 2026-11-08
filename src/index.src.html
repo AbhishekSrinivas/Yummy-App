@@ -2585,7 +2585,7 @@ async function otaCheck(manual){
     await otaPut({build:v.build,html});
     try{localStorage.setItem('yummy-ota-pending',String(v.build))}catch(e){}
     st('Update ready. Restart to apply.');otaPrompt();
-  }catch(e){st(manual?'Could not check for updates. Check your internet connection.':'')}
+  }catch(e){const m=String(e&&e.message||e);st(!manual?'':/^http (404|401|403)/.test(m)?'No updates are published for this app yet.':/^http/.test(m)?'The update server had a problem. Try again later.':'Could not reach the update server. Check your internet connection.')}
 }
 loadMeta();applyTheme();recipes=load();seedDefaults();
 migrateDiet();

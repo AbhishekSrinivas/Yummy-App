@@ -2501,7 +2501,8 @@ function openMore(){
   const TL=(id,ic,t)=>`<button class="btn out sm tile" id="${id}">${ICO(SI[ic],20)}<span>${t}</span></button>`;
   sheet(`<div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><div class="h1" style="font-size:36px">Settings</div><button class="ibtn" id="mx" aria-label="Close">${ICO(SI.x,20)}</button></div>
      ${SEC('look','Look')}<div class="seg" style="margin-top:0">${[['auto','Auto','auto'],['light','Light','sun'],['dark','Dark','look']].map(([k,n,ic])=>`<button class="${th===k?'on':''}" data-th="${k}" style="display:inline-flex;align-items:center;justify-content:center;gap:7px">${ICO(SI[ic],16)}${n}</button>`).join('')}</div>
-    ${SEC('cloud','App')}<div class="tg">${TL('otabtn','cloud','Check for updates')}${TL('hapt','hand',meta.prefs.haptics===false?'Haptics off':'Haptics on')}</div>
+    ${SEC('cloud','App')}<div class="tg">${TL('otabtn','cloud','Check for updates')}${TL('hapt','hand',meta.prefs.haptics===false?'Haptics off':'Haptics on')}${window.YUMMY_BUILD?'':`<a class="btn out sm tile" href="${APK_URL}" download target="_blank" rel="noopener" style="text-decoration:none">${ICO(SI.cloud,20)}<span>Download Android APK</span></a>`}</div>
+    ${window.YUMMY_BUILD?'':'<p class="hint" style="margin-top:8px">The APK is for Android only. iPhone and iPad users can keep using this page.</p>'}
     ${window.YUMMY_BUILD?'<p class="hint" id="verln" style="margin-top:8px;font-weight:700">App build '+window.YUMMY_BUILD+'<span id="apkv"></span></p><p class="hint" id="otast" style="margin-top:2px">Updates download in the background and apply when you restart.</p>':''}
     ${SEC('book','Recipes')}${backupDue()?`<div class="warn" style="background:var(--amberb);color:#8A5A00;margin:0 0 8px">${meta.lastBackup?'Your last backup was '+Math.round((Date.now()-meta.lastBackup)/864e5)+' days ago.':'You have not made a backup yet.'} Time to make one.</div>`:''}<div class="tg">${TL('revall','review','Review all recipes')}${TL('helpbtn','help','Help and guides')}${TL('mcopy','backup','Create backup')}${TL('mpaste','sync','Restore backup')}</div>
     <p class="hint" style="margin-top:6px">${meta.lastBackup?'Last backup '+new Date(meta.lastBackup).toLocaleDateString()+'. ':''}Recipes, favorites, grocery and plan are saved on this device only. Create backup makes one zip with your recipes and your own photos. On Android it opens the share sheet, so pick Files, Downloads or Drive. Restore backup reads that zip.</p>
@@ -2624,6 +2625,7 @@ function welcome(force){
       <li><span>Scale servings, swap meat for vegetarian, and add your own notes.</span></li>
     </ol>
     <p><b>Adding recipes:</b> tap the + button. Paste text from your Gem, scan a photo, or import a zip of many recipes at once.</p>
+    ${window.YUMMY_BUILD?'':`<div class="wnote"><b>Android:</b> you can <a href="${APK_URL}" download target="_blank" rel="noopener noreferrer" style="color:inherit;font-weight:700;text-decoration:underline">download the APK</a> to install Yummy as an app. <b>iPhone and iPad:</b> Apple does not allow installing APK files, so keep using this page.</div>`}
     ${dots(2)}<div class="row" style="gap:8px"><button class="btn out" id="welback">Back</button><button class="btn" id="welok">Start cooking</button></div>
     <p class="hint" style="margin:10px 0 0;text-align:center">Find this again in More, under Help.</p>`;
   const done=()=>{try{store&&store.setItem('yummy-wel','1')}catch(e){}closeSheet();setTimeout(()=>tour('home'),400)};
@@ -2638,6 +2640,7 @@ function welcome(force){
 
 /* ---------- app updates (APK build only: window.YUMMY_BUILD is set by the build script) ---------- */
 const OTA_URL='https://github.com/AbhishekSrinivas/Yummy-App/releases/download/latest/';
+const APK_URL=OTA_URL+'Yummy.apk';
 function otaDB(){return new Promise((ok,no)=>{const q=indexedDB.open('yummy-ota',1);q.onupgradeneeded=()=>q.result.createObjectStore('f');q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)})}
 async function otaPut(v){const d=await otaDB();return new Promise((ok,no)=>{const t=d.transaction('f','readwrite');t.objectStore('f').put(v,'app');t.oncomplete=ok;t.onerror=()=>no(t.error)})}
 /* compressed photos for recipes added by an over-the-air update (the APK has no file for them until the next APK install) */

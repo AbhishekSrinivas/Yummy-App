@@ -53,6 +53,7 @@ mark{background:var(--l8);color:inherit;border-radius:4px;padding:0 2px}
 .btn.lime{background:linear-gradient(180deg,var(--l3),var(--l4));color:#0E0F11}
 .btn.sm{height:40px;font-size:14px;border-radius:13px}
 .btn.del{color:var(--red)}
+.tg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}.btn.tile{height:70px;flex-direction:column;gap:5px;border-radius:16px;font-size:13px;padding:6px;text-align:center;line-height:1.15}.btn.tile svg{color:var(--mut)}.btn.dz{height:48px;background:var(--red)!important;background-image:none!important;border:0;color:#fff!important;font-size:15px;box-shadow:none}
 .btn[disabled]{opacity:.4;pointer-events:none}
 .row{display:flex;align-items:center;gap:10px}
 .tbx img,.tbx svg{width:100%;height:100%;object-fit:cover;display:block}
@@ -2449,18 +2450,16 @@ function openDelete(){
   upd()}
 function openMore(){
   const th=meta.prefs.theme||'auto';
-  sheet(`<div class="h1" style="font-size:36px">Settings</div>
+  const TL=(id,ic,t)=>`<button class="btn out sm tile" id="${id}">${ICO(SI[ic],20)}<span>${t}</span></button>`;
+  sheet(`<div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><div class="h1" style="font-size:36px">Settings</div><button class="ibtn" id="mx" aria-label="Close">${ICO(SI.x,20)}</button></div>
      ${SEC('look','Look')}<div class="seg" style="margin-top:0">${[['auto','Auto','auto'],['light','Light','sun'],['dark','Dark','look']].map(([k,n,ic])=>`<button class="${th===k?'on':''}" data-th="${k}" style="display:inline-flex;align-items:center;justify-content:center;gap:7px">${ICO(SI[ic],16)}${n}</button>`).join('')}</div>
-    <div class="row wrap" style="margin-top:10px"><button class="btn out sm" id="hapt"><span>${meta.prefs.haptics===false?'Haptics off':'Haptics on'}</span></button></div>
-    ${window.YUMMY_BUILD?SEC('cloud','App updates')+'<button class="btn out sm" id="otabtn">'+ICO(SI.cloud,16)+'<span>Check for updates</span></button><p class="hint" id="verln" style="margin-top:6px;font-weight:700">App build '+window.YUMMY_BUILD+'<span id="apkv"></span></p><p class="hint" id="otast" style="margin-top:2px">Updates download in the background and apply when you restart.</p>':''}
-    ${SEC('book','Recipes')}<button class="btn out sm" id="revall">${ICO(SI.review,16)}<span>Review all recipes</span></button><p class="hint" style="margin-top:6px">Go through every recipe A to Z. Edit the title, picture, categories or text, or skip.</p>
-    
-    ${SEC('backup','Backup')}${backupDue()?`<div class="warn" style="background:var(--amberb);color:#8A5A00;margin:0 0 8px">${meta.lastBackup?'Your last backup was '+Math.round((Date.now()-meta.lastBackup)/864e5)+' days ago.':'You have not made a backup yet.'} Time to copy one.</div>`:''}<div class="row wrap"><button class="btn out sm" id="mcopy">${ICO(SI.copy,16)}<span>Copy backup</span></button><button class="btn out sm" id="mpaste">${ICO(SI.paste,16)}<span>Paste backup</span></button></div><p class="hint" style="margin-top:6px">${meta.lastBackup?'Last backup '+new Date(meta.lastBackup).toLocaleDateString()+'. ':''}Recipes, favorites, grocery and plan are saved on this device only. A backup moves them to another phone or the GitHub and APK versions.</p>
-    ${SEC('help','Help')}<button class="btn out sm" id="helpbtn">${ICO(SI.help,16)}<span>Help and guides</span></button>
-    ${SEC('trash','Danger zone')}<button class="btn out sm del" id="mclear">${ICO(SI.trash,16)}<span>Delete recipes</span></button>
-    <div style="margin-top:16px"><button class="btn out" id="mx">Close</button></div>`);
+    ${SEC('cloud','App')}<div class="tg">${TL('otabtn','cloud','Check for updates')}${TL('hapt','hand',meta.prefs.haptics===false?'Haptics off':'Haptics on')}</div>
+    ${window.YUMMY_BUILD?'<p class="hint" id="verln" style="margin-top:8px;font-weight:700">App build '+window.YUMMY_BUILD+'<span id="apkv"></span></p><p class="hint" id="otast" style="margin-top:2px">Updates download in the background and apply when you restart.</p>':''}
+    ${SEC('book','Recipes')}${backupDue()?`<div class="warn" style="background:var(--amberb);color:#8A5A00;margin:0 0 8px">${meta.lastBackup?'Your last backup was '+Math.round((Date.now()-meta.lastBackup)/864e5)+' days ago.':'You have not made a backup yet.'} Time to copy one.</div>`:''}<div class="tg">${TL('revall','review','Review all recipes')}${TL('mcopy','copy','Copy backup')}${TL('mpaste','paste','Paste backup')}${TL('helpbtn','help','Help and guides')}</div>
+    <p class="hint" style="margin-top:6px">${meta.lastBackup?'Last backup '+new Date(meta.lastBackup).toLocaleDateString()+'. ':''}Recipes, favorites, grocery and plan are saved on this device only. A backup moves them to another phone or the GitHub and APK versions.</p>
+    ${SEC('trash','Danger zone')}<button class="btn del dz" id="mclear">${ICO(SI.trash,18)}<span>Delete recipes</span></button>`);
   if(window.YUMMY_BUILD&&NAPP&&NAPP.getInfo){try{NAPP.getInfo().then(i=>{const e=$('#apkv');if(e)e.textContent=' · APK build '+(i.build||'?')+' · v'+(i.version||'?')}).catch(()=>{})}catch(e){}}
-  $('#hapt').onclick=()=>{meta.prefs.haptics=meta.prefs.haptics===false;saveMeta();$('#hapt').firstElementChild.textContent=meta.prefs.haptics===false?'Haptics off':'Haptics on';buzz(12)};
+  $('#hapt').onclick=()=>{meta.prefs.haptics=meta.prefs.haptics===false;saveMeta();$('#hapt span').textContent=meta.prefs.haptics===false?'Haptics off':'Haptics on';buzz(12)};
   if($('#otabtn'))$('#otabtn').onclick=()=>otaCheck(true);$('#helpbtn').onclick=openHelp;$('#revall').onclick=()=>reviewAll(0);
   $('#mx').onclick=closeSheet;
   $$('[data-th]').forEach(b=>b.onclick=()=>{meta.prefs.theme=b.dataset.th;saveMeta();applyTheme();openMore()});

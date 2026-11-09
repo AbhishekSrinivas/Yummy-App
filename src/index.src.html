@@ -2387,7 +2387,10 @@ async function doBackupCopy(){
     const FS=nplug('Filesystem'),SH=nplug('Share');
     if(FS&&SH){const w=await FS.writeFile({path:name,data:(await blobURL64(blob)).split(',')[1],directory:'CACHE'});
       try{await SH.share({title:'Yummy backup',dialogTitle:'Save your Yummy backup',files:[w.uri]})}catch(e){if(/cancel/i.test(String(e&&e.message||e)))return;throw e}}
-    else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.append(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(a.href)},4000)}
+    else{let saved=false;
+      try{const dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null;
+        if(dl){try{await dl.save({filename:name,data:blob});saved=true}catch(e1){if(/declin|cancel|denied/i.test(String(e1&&(e1.code||e1.message||e1))))return;await dl.save({filename:name,data:new Uint8Array(await blob.arrayBuffer())});saved=true}}}catch(e){if(/declin|cancel|denied/i.test(String(e&&(e.code||e.message||e))))return}
+      if(!saved){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.append(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(a.href)},4000)}}
     meta.lastBackup=Date.now();saveMeta();toast('Backup created: '+n+' recipe'+(n===1?'':'s')+', '+np+' photo'+(np===1?'':'s'),3500);render()}
   catch(e){toast('Could not create the backup. '+String(e&&e.message||e).slice(0,60),4000)}}
 async function readBackupZip(buf){

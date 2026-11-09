@@ -12,7 +12,7 @@ Download the latest APK from the [releases page](https://github.com/AbhishekSrin
 
 ## What it does
 
-- 27 bundled South Indian and other vegetarian recipes with photos, categories and time groups (Instant, Quick, Normal)
+- 30 bundled South Indian and other vegetarian recipes with photos, categories and time groups (Instant, Quick, Normal)
 - Add recipes by pasting text or importing a zip with images; titles can be reviewed on import
 - Book reader with page turns, a two-page spread in landscape, step ticks and timers
 - People-eating stepper that scales ingredient amounts and the quantities written inside the steps

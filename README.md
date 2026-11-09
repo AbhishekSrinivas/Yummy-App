@@ -14,14 +14,14 @@ Download the latest APK from the [releases page](https://github.com/AbhishekSrin
 
 - 27 bundled South Indian and other vegetarian recipes with photos, categories and time groups (Instant, Quick, Normal)
 - Add recipes by pasting text or importing a zip with images; titles can be reviewed on import
-- Book reader with page turns, a two-page spread in landscape, step checkboxes and timers
+- Book reader with page turns, a two-page spread in landscape, step ticks and timers
 - People-eating stepper that scales ingredient amounts and the quantities written inside the steps
 - Metric and US units, ingredient swaps, grocery list, weekly plan, pantry and cooking stats
 - Read aloud with highlighting, speed options and a choice of ingredients only or the whole recipe
 - Favorites, search across recipes, ingredients and tips, and A-Z or custom ordering
-- Editorial and lime glass themes, light, dark and true black modes
+- Editorial theme with light, dark and true black modes
 - Full-resolution photos and bundled fonts, so everything works offline
-- Installed app checks for updates and downloads new app files by itself (see below)
+- Installed app checks for updates every 3 days and asks before updating (see below)
 
 ## Install
 
@@ -31,7 +31,7 @@ You can also build `www` and serve it from any static host.
 
 ## Updates without a new APK
 
-The installed app looks at the latest release for `version.json` when it opens (after a few seconds) and from Settings, App updates. If the build number is newer, it downloads `app.html`, keeps it on the device and shows an Update ready bar. Restart applies it. Recipes, photos and notes are not touched. If an update fails to start, the app removes it and falls back to the version inside the APK.
+The installed app looks at the latest release for `version.json` at most once every 3 days when it opens, and any time from Settings, App updates. If the build number is newer, it shows a prompt. Tapping Update downloads `app.html`, keeps it on the phone, and asks for a restart. Later closes the prompt until the next check.
 
 - Needs internet and a repository that can be read without signing in (public). On a private repo the check quietly finds nothing and the APK is the only way to update.
 - Updates change the app code and bundled recipes. New or changed photo files are only in the APK, so those need a new APK install.
@@ -44,7 +44,7 @@ Needs Python 3 and Node 18+.
 python3 src/build.py          # writes www/
 npm install
 npx cap add android           # first time only
-npx @capacitor/assets generate --android --iconBackgroundColor '#1E5B3A'
+npx @capacitor/assets generate --android --iconBackgroundColor '#0F6E6E'
 npx cap sync android
 cd android && ./gradlew assembleDebug
 ```
